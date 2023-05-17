@@ -1,0 +1,73 @@
+#设置aad分组
+from datetime import datetime
+def update_aad():
+    try:
+        wait.until(EC.presence_of_element_located((By.XPATH, '//button[@aria-label="Show all"]'))).click()
+    except:
+        wait.until(EC.presence_of_element_located((By.XPATH, '//button[@aria-label="全部显示"]'))).click()
+    wait.until(EC.presence_of_element_located((By.XPATH, '//a[@name="Azure Active Directory"]'))).click()
+
+    handles = driver.window_handles
+    driver.switch_to.window(handles[1])
+    time.sleep(10)
+
+def powerbiopen():
+    wait.until(EC.presence_of_element_located((By.ID, "O365_MainLink_NavMenu"))).click()
+    time.sleep(2)
+    wait.until(EC.presence_of_element_located((By.ID, "allAppsLink"))).click()
+    time.sleep(2)
+    wait.until(EC.presence_of_element_located((By.ID, "appLauncherSearch"))).send_keys("power bi")
+    time.sleep(2)
+    wait.until(EC.presence_of_element_located((By.ID, "O365_AppTile_PowerBIv2"))).click()
+
+    
+    
+    
+def renew_date():
+    wait.until(EC.presence_of_element_located((By.XPATH, '//button[@data-value="Billing"]'))).click()
+    wait.until(EC.presence_of_element_located((By.XPATH, '//a[@data-value="subscriptions"]'))).click()
+    wait.until(EC.visibility_of_element_located((By.XPATH, "//*[contains(text(), 'Microsoft 365 E5 Developer')]"))).click()
+
+    expiredate=wait.until(EC.visibility_of_element_located((By.XPATH, ".//*[contains(@class, 'paymentMethodContainer_Active')]"))).text
+    today = datetime.today().date()
+    delta = datetime.strptime(expiredate, '%Y/%m/%d').date() - today
+    days_until_expire = delta.days
+    if days_until_expire>90:
+        powerbiopen()
+        inputupdate=input("是否完成文件上传和更新操作： ")
+    else:
+        pass
+    
+    expiredate = datetime.strptime(expiredate, '%Y/%m/%d').date().strftime('%Y-%m-%d')
+    
+    
+    pageid=results[0]['id']
+    pageurl="https://api.notion.com/v1/pages/"+pageid
+    data = {
+        "properties": {
+            "有效日期":{
+                "date": {
+                    "start": expiredate
+                }
+            }
+        }
+    }
+    response2 = requests.patch(pageurl, json=data, headers=headers)
+    if response2.ok:
+        print("Page updated successfully!")
+    else:
+        print(f"Failed to update page: {response2.status_code} {response2.text}")
+
+if inputnum=="1":
+    update_aad()
+elif inputnum=="2":
+    update_aad()
+elif inputnum=="3":
+    renew_date()
+    input2=input("是否进行userapi设置，1是，0否：")
+    if input2=="1":
+        update_aad()
+    else:
+        pass
+        
+        
